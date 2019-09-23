@@ -1,0 +1,10 @@
+[x] Dockerise main app
+[x] Setup Redis persistence
+[x] Support public playlists
+[x] Conditional templating
+[ ] Appease golinter with required docs
+[ ] Unit testing
+[ ] Move config out of Docker image
+[ ] Support custom playlist names
+[ ] Request IDs + logging
+[ ] Consolidate redis client libraries (redis session store uses different one to other redis logic)

@@ -1,0 +1,26 @@
+version: "3.7"
+services:
+  app:
+    build: .
+    ports:
+      - "8000:80"
+    depends_on:
+      - redis
+    networks:
+      - appnet
+    restart: on-failure
+
+  redis:
+    image: redis:5.0-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    networks:
+      - appnet
+    volumes:
+      - redis-data:/data
+
+volumes:
+  redis-data:
+networks:
+  appnet:
+
+    

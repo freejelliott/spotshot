@@ -1,0 +1,31 @@
+<html>
+  <body>
+    <h1>Monthly Playlist Creator</h1>
+    <p>Subscribe to get a playlist of your top songs for the past month, every month.</p>
+    {{- if .IsLoggedIn }}
+    <form action="/logout" method="POST"> 
+      <input type="submit" value="Logout">
+    </form>
+      {{- if .IsSubscribed }}
+    <form action="/unsubscribe" method="POST">
+      I don't want monthly playlists anymore: <input type="submit" value="Unsubscribe">
+    </form>
+      {{- else }}
+    <p>You'll get a playlist at the start of every month that looks like "Aug 19".</p>
+    <form action="/subscribe" method="POST">
+      <label for="num_songs">Number of songs in playlist (max 50):</label>
+      <input id="num_songs" type="text" name="num_songs" value="50" required pattern="\d+">
+      <br>
+      <label for="is_private">Private?:</label>
+      <input id="is_private" type="checkbox" name="is_private">
+      
+      <input type="submit" value="Subscribe">
+    </form>
+      {{- end }}
+    {{- else }}
+    <form action="/login" method="POST">
+      <input type="submit" value="Login with Spotify">
+    </form>
+    {{- end }}
+  </body>
+</html>
