@@ -107,7 +107,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	go mp.PlaylistCreator(context.Background(), redisClient, logger, spotAuth)
+	go mp.PlaylistCreator(context.Background(), redisClient, logger, mp.SpotifyClientCreator(spotAuth))
 
 	homeTmpl, err := template.ParseFiles("index.html.tmpl")
 	if err != nil {

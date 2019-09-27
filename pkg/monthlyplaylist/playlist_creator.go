@@ -19,19 +19,37 @@ const (
 	IsPrivateField    = "is_private"
 )
 
+var (
+	timeNow        = time.Now
+	monthCheckFreq = time.Minute
+)
+
+type SpotifyClienter interface {
+	CurrentUsersTopTracksOpt(opts *spotify.Options) (*spotify.FullTrackPage, error)
+	CreatePlaylistForUser(user, playlistName, desc string, public bool) (*spotify.FullPlaylist, error)
+	AddTracksToPlaylist(playlistID spotify.ID, trackIDs ...spotify.ID) (string, error)
+}
+
+func SpotifyClientCreator(auth spotify.Authenticator) func(*oauth2.Token) SpotifyClienter {
+	return func(token *oauth2.Token) SpotifyClienter {
+		client := auth.NewClient(token)
+		return &client
+	}
+}
+
 // PlaylistCreator will check every hour for Spotify users to create playlists for.
 // Will only return if the given context is done.
-func PlaylistCreator(ctx context.Context, redisClient redis.UniversalClient, logger logrus.FieldLogger, auth spotify.Authenticator) {
-	curMonth := time.Now().Month()
+func PlaylistCreator(ctx context.Context, redisClient redis.UniversalClient, logger logrus.FieldLogger, GetSpotifyClient func(token *oauth2.Token) SpotifyClienter) {
+	curMonth := timeNow().Month()
 	for {
-		// Check if it's a new month every minute.
+		// Periodically check if it's a new month.
 		select {
-		case <-time.After(time.Minute):
-			if time.Now().Month() == curMonth {
+		case <-time.After(monthCheckFreq):
+			if timeNow().Month() == curMonth {
 				continue
 			}
 			// New month!
-			curMonth = time.Now().Month()
+			curMonth = timeNow().Month()
 		case <-ctx.Done():
 			return
 		}
@@ -73,7 +91,7 @@ func PlaylistCreator(ctx context.Context, redisClient redis.UniversalClient, log
 				logger.Errorf("couldn't get refresh token: %s", err)
 				continue
 			}
-			spotClient := auth.NewClient(token)
+			spotClient := GetSpotifyClient(token)
 
 			// Get numsongs-many top tracks for past month.
 			numSongs, err := redisClient.HGet(key, NumSongsField).Int()
@@ -93,11 +111,11 @@ func PlaylistCreator(ctx context.Context, redisClient redis.UniversalClient, log
 			}
 
 			// Playlist name will look like "Aug 19".
-			now := time.Now()
+			now := timeNow()
 			monthShort := now.Month().String()[:3]
 			yearShort := now.Year() % 100
 			playlistName := fmt.Sprintf("%s %0.2d", monthShort, yearShort)
-			playlistDesc := fmt.Sprintf("Your top songs for %s %d.", now.Month(), time.Now().Year())
+			playlistDesc := fmt.Sprintf("Your top songs for %s %d.", now.Month(), timeNow().Year())
 			// Make the playlist! It will be empty at first.
 			// TODO: support custom naming playlists
 			fullPlaylist, err := spotClient.CreatePlaylistForUser(userID, playlistName, playlistDesc, !isPrivate)
