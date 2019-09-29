@@ -1,4 +1,4 @@
-package monthlyplaylist
+package spotshot
 
 import (
 	"encoding/gob"
@@ -22,6 +22,7 @@ const (
 	SpotifyState SessionKey = iota
 	SpotifyUserID
 	IsSubscribed
+	IsLoggedIn
 )
 
 const (
@@ -135,6 +136,8 @@ func Callback(auth spotify.Authenticator, store sessions.Store, redisClient redi
 		if err != nil {
 			return fmt.Errorf("error while setting redis key %s: %w", RefreshTokenField, err)
 		}
+
+		session.Values[IsLoggedIn] = true
 
 		err = session.Save(r, w)
 		if err != nil {
@@ -284,5 +287,6 @@ func isLoggedIn(session *sessions.Session) bool {
 	if session == nil {
 		return false
 	}
-	return !session.IsNew
+	isLoggedIn, _ := session.Values[IsLoggedIn].(bool)
+	return isLoggedIn
 }

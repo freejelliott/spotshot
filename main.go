@@ -10,7 +10,7 @@ import (
 	"net/http"
 	"os"
 
-	mp "monthlyplaylist/pkg/monthlyplaylist"
+	"spotshot/pkg/spotshot"
 
 	"github.com/boj/redistore"
 	"github.com/go-redis/redis"
@@ -70,7 +70,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	mp.RegisterGobEncodings()
+	spotshot.RegisterGobEncodings()
 
 	// Setup Spotify authenticator.
 	spotAuth := spotify.NewAuthenticator(cfg.Spotify.RedirectURI,
@@ -107,9 +107,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	go mp.PlaylistCreator(context.Background(), redisClient, logger, mp.SpotifyClientCreator(spotAuth))
+	go spotshot.PlaylistCreator(context.Background(), redisClient, logger, spotshot.SpotifyClientCreator(spotAuth))
 
-	homeTmpl, err := template.ParseFiles("index.html.tmpl")
+	homeTmpl, err := template.ParseFiles("templates/index.html.tmpl")
 	if err != nil {
 		logger.Errorf("error reading home template: %s", err)
 		os.Exit(1)
@@ -121,24 +121,25 @@ func main() {
 	}
 
 	r := mux.NewRouter()
-	r.Path("/").Methods("GET").Handler(&mp.Endpoint{
-		HandlerFunc: mp.Home(homeTmpl, store),
+	r.Path("/").Methods("GET").Handler(&spotshot.Endpoint{
+		HandlerFunc: spotshot.Home(homeTmpl, store),
 		Logger:      logger})
-	r.Path("/login").Methods("POST").Handler(&mp.Endpoint{
-		HandlerFunc: mp.SpotifyLogin(spotAuth, store),
+	r.Path("/login").Methods("POST").Handler(&spotshot.Endpoint{
+		HandlerFunc: spotshot.SpotifyLogin(spotAuth, store),
 		Logger:      logger})
-	r.Path("/logout").Methods("POST").Handler(&mp.Endpoint{
-		HandlerFunc: mp.Logout(store, logger),
+	r.Path("/logout").Methods("POST").Handler(&spotshot.Endpoint{
+		HandlerFunc: spotshot.Logout(store, logger),
 		Logger:      logger})
-	r.Path("/callback").Methods("GET").Handler(&mp.Endpoint{
-		HandlerFunc: mp.Callback(spotAuth, store, redisClient),
+	r.Path("/callback").Methods("GET").Handler(&spotshot.Endpoint{
+		HandlerFunc: spotshot.Callback(spotAuth, store, redisClient),
 		Logger:      logger})
-	r.Path("/subscribe").Methods("POST").Handler(&mp.Endpoint{
-		HandlerFunc: mp.Subscribe(store, logger, redisClient),
+	r.Path("/subscribe").Methods("POST").Handler(&spotshot.Endpoint{
+		HandlerFunc: spotshot.Subscribe(store, logger, redisClient),
 		Logger:      logger})
-	r.Path("/unsubscribe").Methods("POST").Handler(&mp.Endpoint{
-		HandlerFunc: mp.Unsubscribe(store, logger, redisClient),
+	r.Path("/unsubscribe").Methods("POST").Handler(&spotshot.Endpoint{
+		HandlerFunc: spotshot.Unsubscribe(store, logger, redisClient),
 		Logger:      logger})
+	r.PathPrefix("/static/").Methods("GET").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	s.Handler = r
 
 	logger.Infof("Server running on port %d", cfg.App.Port)

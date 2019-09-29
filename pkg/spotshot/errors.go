@@ -1,4 +1,4 @@
-package monthlyplaylist
+package spotshot
 
 import (
 	"errors"

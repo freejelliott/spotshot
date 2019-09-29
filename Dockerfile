@@ -37,9 +37,8 @@ FROM scratch
 COPY --from=builder /build/main /app/main
 # The root ca-certificates are needed to make SSL requests.
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-COPY cfg/ \
-    index.html.tmpl \
-    /app/
-
+COPY cfg/ /app/cfg/
+COPY static/ /app/static/
+COPY templates/ /app/templates/
 WORKDIR /app
-ENTRYPOINT ["/app/main", "-c", "./config.json"]
+ENTRYPOINT ["/app/main", "-c", "./cfg/config.json"]
