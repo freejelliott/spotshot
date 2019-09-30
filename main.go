@@ -122,22 +122,22 @@ func main() {
 
 	r := mux.NewRouter()
 	r.Path("/").Methods("GET").Handler(&spotshot.Endpoint{
-		HandlerFunc: spotshot.Home(homeTmpl, store),
+		HandlerFunc: spotshot.Home(homeTmpl, store, logger),
 		Logger:      logger})
 	r.Path("/login").Methods("POST").Handler(&spotshot.Endpoint{
-		HandlerFunc: spotshot.SpotifyLogin(spotAuth, store),
+		HandlerFunc: spotshot.SpotifyLogin(spotAuth, store, logger),
 		Logger:      logger})
 	r.Path("/logout").Methods("POST").Handler(&spotshot.Endpoint{
 		HandlerFunc: spotshot.Logout(store, logger),
 		Logger:      logger})
 	r.Path("/callback").Methods("GET").Handler(&spotshot.Endpoint{
-		HandlerFunc: spotshot.Callback(spotAuth, store, redisClient),
+		HandlerFunc: spotshot.Callback(spotAuth, store, redisClient, logger),
 		Logger:      logger})
 	r.Path("/subscribe").Methods("POST").Handler(&spotshot.Endpoint{
-		HandlerFunc: spotshot.Subscribe(store, logger, redisClient),
+		HandlerFunc: spotshot.Subscribe(store, redisClient, logger),
 		Logger:      logger})
 	r.Path("/unsubscribe").Methods("POST").Handler(&spotshot.Endpoint{
-		HandlerFunc: spotshot.Unsubscribe(store, logger, redisClient),
+		HandlerFunc: spotshot.Unsubscribe(store, redisClient, logger),
 		Logger:      logger})
 	r.PathPrefix("/static/").Methods("GET").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	s.Handler = r

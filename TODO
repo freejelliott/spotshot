@@ -6,5 +6,7 @@
 [ ] Unit testing
 [ ] Move config out of Docker image
 [ ] Support custom playlist names
+[ ] Support changing number of songs
 [ ] Request IDs + logging
 [ ] Consolidate redis client libraries (redis session store uses different one to other redis logic)
+[ ] Make UI look good on mobile

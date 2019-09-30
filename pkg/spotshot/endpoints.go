@@ -51,12 +51,12 @@ func (e *Endpoint) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func Home(homeTmpl *template.Template, store sessions.Store) HandlerFunc {
+func Home(homeTmpl *template.Template, store sessions.Store, logger logrus.FieldLogger) HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		// Fetch session (or create new one if need be).
 		session, err := store.Get(r, SessionName)
 		if err != nil {
-			return SessionFetchError{err}
+			logger.Warn(SessionFetchError{err})
 		}
 
 		var data struct {
@@ -71,12 +71,12 @@ func Home(homeTmpl *template.Template, store sessions.Store) HandlerFunc {
 	}
 }
 
-func SpotifyLogin(auth spotify.Authenticator, store sessions.Store) HandlerFunc {
+func SpotifyLogin(auth spotify.Authenticator, store sessions.Store, logger logrus.FieldLogger) HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		// Fetch session (or create new one if need be).
 		session, err := store.Get(r, SessionName)
 		if err != nil {
-			return SessionFetchError{err}
+			logger.Warn(SessionFetchError{err})
 		}
 
 		// Generate random state string and store in session to check later in Callback.
@@ -95,12 +95,12 @@ func SpotifyLogin(auth spotify.Authenticator, store sessions.Store) HandlerFunc 
 	}
 }
 
-func Callback(auth spotify.Authenticator, store sessions.Store, redisClient redis.UniversalClient) HandlerFunc {
+func Callback(auth spotify.Authenticator, store sessions.Store, redisClient redis.UniversalClient, logger logrus.FieldLogger) HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		// Fetch session.
 		session, err := store.Get(r, SessionName)
 		if err != nil {
-			return SessionFetchError{err}
+			logger.Warn(SessionFetchError{err})
 		}
 		state, ok := session.Values[SpotifyState].(string)
 		if !ok {
@@ -154,7 +154,7 @@ func Logout(store sessions.Store, logger logrus.FieldLogger) HandlerFunc {
 		// Fetch session.
 		session, err := store.Get(r, SessionName)
 		if err != nil {
-			return SessionFetchError{err}
+			logger.Warn(SessionFetchError{err})
 		}
 		if !isLoggedIn(session) {
 			return ErrNotLoggedIn
@@ -172,12 +172,12 @@ func Logout(store sessions.Store, logger logrus.FieldLogger) HandlerFunc {
 	}
 }
 
-func Subscribe(store sessions.Store, logger logrus.FieldLogger, redisClient redis.UniversalClient) HandlerFunc {
+func Subscribe(store sessions.Store, redisClient redis.UniversalClient, logger logrus.FieldLogger) HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		// Fetch session.
 		session, err := store.Get(r, SessionName)
 		if err != nil {
-			return SessionFetchError{err}
+			logger.Warn(SessionFetchError{err})
 		}
 		if !isLoggedIn(session) {
 			return ErrNotLoggedIn
@@ -236,12 +236,12 @@ func Subscribe(store sessions.Store, logger logrus.FieldLogger, redisClient redi
 	}
 }
 
-func Unsubscribe(store sessions.Store, logger logrus.FieldLogger, redisClient redis.UniversalClient) HandlerFunc {
+func Unsubscribe(store sessions.Store, redisClient redis.UniversalClient, logger logrus.FieldLogger) HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		// Fetch session.
 		session, err := store.Get(r, SessionName)
 		if err != nil {
-			return SessionFetchError{err}
+			logger.Warn(SessionFetchError{err})
 		}
 		if !isLoggedIn(session) {
 			return ErrNotLoggedIn
