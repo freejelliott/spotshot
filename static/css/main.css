@@ -1,0 +1,13 @@
+body {
+    text-align: center;
+    font-family: Circular,Helvetica,Arial,sans-serif;
+}
+
+.main {
+    display: inline-block;
+    text-align: left;
+}
+
+.logout {
+    text-align: right;
+}

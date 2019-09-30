@@ -1,35 +1,42 @@
 <html>
   <head>
-    <title>SpotShot</title>
-    <link rel="icon" type="image/png" href="/static/img/favicon.png">
+    <title>Spotshot</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/img/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/img/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/img/favicon-16x16.png">
+    <link rel="stylesheet" type="text/css" href="/static/css/main.css">
+    <link href="https://sp-bootstrap.global.ssl.fastly.net/8.0.0/sp-bootstrap.min.css" rel="stylesheet">
   </head>
   <body>
-    <h1>Monthly Playlist Creator</h1>
-    <p>Subscribe to get a playlist of your top songs for the past month, every month.</p>
-    {{- if .IsLoggedIn }}
-    <form action="/logout" method="POST"> 
-      <input type="submit" value="Logout">
-    </form>
-      {{- if .IsSubscribed }}
-    <form action="/unsubscribe" method="POST">
-      I don't want monthly playlists anymore: <input type="submit" value="Unsubscribe">
-    </form>
+    <div class="main">
+      <h1>Spotshot - Monthly Playlist Creator</h1>
+      <p>Subscribe to get a playlist of your top songs for the past month, every month.</p>
+      {{- if .IsLoggedIn }}
+      <form action="/logout" method="POST">
+        <input class="btn btn-sm btn-primary logout" type="submit" value="Log out">
+      </form>
+        {{- if .IsSubscribed }}
+      <form action="/unsubscribe" method="POST">
+        <p>You're set to get a playlist at the start of next month.</p>
+        <input class="btn btn-primary" type="submit" value="Unsubscribe">
+      </form>
+        {{- else }}
+      <p>You'll get a playlist at the start of every month that looks like "Aug 19".</p>
+      <form action="/subscribe" method="POST">
+        <label for="num_songs">Number of songs in playlist (max 50):</label>
+        <input id="num_songs" type="text" name="num_songs" value="30" required pattern="\d+">
+        <br>
+        <label for="is_private">Private?:</label>
+        <input id="is_private" type="checkbox" name="is_private">
+        <br>
+        <input class="btn btn-primary" type="submit" value="Subscribe">
+      </form>
+        {{- end }}
       {{- else }}
-    <p>You'll get a playlist at the start of every month that looks like "Aug 19".</p>
-    <form action="/subscribe" method="POST">
-      <label for="num_songs">Number of songs in playlist (max 50):</label>
-      <input id="num_songs" type="text" name="num_songs" value="50" required pattern="\d+">
-      <br>
-      <label for="is_private">Private?:</label>
-      <input id="is_private" type="checkbox" name="is_private">
-      
-      <input type="submit" value="Subscribe">
-    </form>
+      <form action="/login" method="POST">
+        <input class="btn btn-primary" type="submit" value="Log in with Spotify">
+      </form>
       {{- end }}
-    {{- else }}
-    <form action="/login" method="POST">
-      <input type="submit" value="Login with Spotify">
-    </form>
-    {{- end }}
+    </div>
   </body>
 </html>
