@@ -13,16 +13,19 @@
       <p>Subscribe to get a playlist of your top songs for the past month, every month.</p>
       {{- if .IsLoggedIn }}
       <form action="/logout" method="POST">
+        {{ .CSRFField }}
         <input class="btn btn-sm btn-primary logout" type="submit" value="Log out">
       </form>
         {{- if .IsSubscribed }}
       <form action="/unsubscribe" method="POST">
+        {{ .CSRFField }}
         <p>You're set to get a playlist at the start of next month.</p>
         <input class="btn btn-primary" type="submit" value="Unsubscribe">
       </form>
         {{- else }}
       <p>You'll get a playlist at the start of every month that looks like "Aug 19".</p>
       <form action="/subscribe" method="POST">
+        {{ .CSRFField }}
         <label for="num_songs">Number of songs in playlist (max 50):</label>
         <input id="num_songs" type="text" name="num_songs" value="30" required pattern="\d+">
         <br>
@@ -34,6 +37,7 @@
         {{- end }}
       {{- else }}
       <form action="/login" method="POST">
+        {{ .CSRFField }}
         <input class="btn btn-primary" type="submit" value="Log in with Spotify">
       </form>
       {{- end }}

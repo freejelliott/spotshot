@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/go-redis/redis"
+	"github.com/gorilla/csrf"
 	"github.com/gorilla/sessions"
 	"github.com/sirupsen/logrus"
 	"github.com/zmb3/spotify"
@@ -59,12 +60,11 @@ func Home(homeTmpl *template.Template, store sessions.Store, logger logrus.Field
 			logger.Warn(SessionFetchError{err})
 		}
 
-		var data struct {
-			IsLoggedIn   bool
-			IsSubscribed bool
+		data := map[string]interface{}{
+			"IsLoggedIn": isLoggedIn(session),
+			"CSRFField":  csrf.TemplateField(r),
 		}
-		data.IsLoggedIn = isLoggedIn(session)
-		data.IsSubscribed, _ = session.Values[IsSubscribed].(bool)
+		data["IsSubscribed"], _ = session.Values[IsSubscribed].(bool)
 		w.WriteHeader(200)
 		homeTmpl.Execute(w, data)
 		return nil

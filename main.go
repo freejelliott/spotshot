@@ -14,6 +14,7 @@ import (
 
 	"github.com/boj/redistore"
 	"github.com/go-redis/redis"
+	"github.com/gorilla/csrf"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 	"github.com/zmb3/spotify"
@@ -30,6 +31,7 @@ type Config struct {
 		Port                             int
 		SessionEncryptionKeyFilename     string `json:"session_encryption_key_filename"`
 		SessionAuthenticationKeyFilename string `json:"session_authentication_key_filename"`
+		CSRFAuthenticationKeyFilename    string `json:"csrf_authentication_key_filename"`
 	}
 	Redis struct {
 		Addr string
@@ -115,6 +117,12 @@ func main() {
 		os.Exit(1)
 	}
 
+	csrfAuthKey, err := ioutil.ReadFile(cfg.App.CSRFAuthenticationKeyFilename)
+	if err != nil {
+		logger.Errorf("err reading CSRF authentication key: %s", err)
+		os.Exit(1)
+	}
+
 	// Setup server and specify its endpoints.
 	s := &http.Server{
 		Addr: fmt.Sprintf(":%d", cfg.App.Port),
@@ -140,6 +148,7 @@ func main() {
 		HandlerFunc: spotshot.Unsubscribe(store, redisClient, logger),
 		Logger:      logger})
 	r.PathPrefix("/static/").Methods("GET").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+	r.Use(csrf.Protect(csrfAuthKey, csrf.Secure(false)))
 	s.Handler = r
 
 	logger.Infof("Server running on port %d", cfg.App.Port)

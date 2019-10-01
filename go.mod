@@ -7,6 +7,7 @@ require (
 	github.com/alicebob/miniredis v2.5.0+incompatible
 	github.com/boj/redistore v0.0.0-20180917114910-cd5dcc76aeff
 	github.com/go-redis/redis v6.15.5+incompatible
+	github.com/gorilla/csrf v1.6.1
 	github.com/gorilla/mux v1.7.3
 	github.com/gorilla/sessions v1.2.0
 	github.com/onsi/ginkgo v1.10.1 // indirect
