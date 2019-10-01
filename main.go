@@ -148,7 +148,7 @@ func main() {
 		HandlerFunc: spotshot.Unsubscribe(store, redisClient, logger),
 		Logger:      logger})
 	r.PathPrefix("/static/").Methods("GET").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
-	r.Use(csrf.Protect(csrfAuthKey, csrf.Secure(false)))
+	r.Use(csrf.Protect(csrfAuthKey))
 	s.Handler = r
 
 	logger.Infof("Server running on port %d", cfg.App.Port)
