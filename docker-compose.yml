@@ -9,6 +9,8 @@ services:
     networks:
       - appnet
     restart: on-failure
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
 
   redis:
     image: redis:5.0-alpine
@@ -17,6 +19,7 @@ services:
       - appnet
     volumes:
       - redis-data:/data
+      - /etc/localtime:/etc/localtime:ro
 
 volumes:
   redis-data:
