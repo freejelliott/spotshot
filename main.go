@@ -76,6 +76,7 @@ func main() {
 
 	// Setup Spotify authenticator.
 	spotAuth := spotify.NewAuthenticator(cfg.Spotify.RedirectURI,
+		spotify.ScopeUserReadEmail,
 		spotify.ScopeUserTopRead,
 		spotify.ScopePlaylistModifyPrivate,
 		spotify.ScopePlaylistModifyPublic)
