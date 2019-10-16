@@ -113,8 +113,16 @@ func PlaylistCreator(ctx context.Context, redisClient redis.UniversalClient, log
 
 			// Playlist name will look like "Aug 19".
 			now := timeNow()
-			monthShort := now.Month().String()[:3]
 			yearShort := now.Year() % 100
+			month := now.Month() - 1
+			if month == 0 {
+				yearShort--
+				if yearShort == -1 { // Accounting for time travel.
+					yearShort = 99
+				}
+				month = 12
+			}
+			monthShort := month.String()[:3]
 			playlistName := fmt.Sprintf("%s %0.2d", monthShort, yearShort)
 			playlistDesc := fmt.Sprintf("Your top songs in %s %d, made by %s", now.Month(), timeNow().Year(), DomainName)
 			// Make the playlist! It will be empty at first.

@@ -130,7 +130,7 @@ func TestPlaylistCreatorSubscribedUser(t *testing.T) {
 	if !match {
 		t.Errorf("playlist name does not match expected format, e.g. Aug 19, got %s", mother.msc.playlists[0].name)
 	}
-	match, err = regexp.MatchString(`Your top songs for (January|February|March|April|May|June|July|August|September|October|November|December) \d{4}`, mother.msc.playlists[0].desc)
+	match, err = regexp.MatchString(`Your top songs in (January|February|March|April|May|June|July|August|September|October|November|December) \d{4}, made by `+DomainName, mother.msc.playlists[0].desc)
 	if err != nil {
 		t.Fatalf("couldn't compile regex: %s", err)
 	}
