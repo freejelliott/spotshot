@@ -23,7 +23,7 @@
         <input class="btn btn-primary" type="submit" value="Unsubscribe">
       </form>
         {{- else }}
-      <p>You'll get a playlist at the start of every month that looks like "Aug 19".</p>
+      <p>You'll get a playlist at the start of every month that looks like "Your Top Songs Aug 19".</p>
       <form action="/subscribe" method="POST">
         {{ .CSRFField }}
         <label for="num_songs">Number of songs in playlist (max 50):</label>
@@ -31,6 +31,9 @@
         <br>
         <label for="is_private">Private?:</label>
         <input id="is_private" type="checkbox" name="is_private">
+        <br>
+        <label for="playlist_now">Do you want a playlist right now?:</label>
+        <input id="playlist_now" type="checkbox" name="playlist_now">
         <br>
         <input class="btn btn-primary" type="submit" value="Subscribe">
       </form>

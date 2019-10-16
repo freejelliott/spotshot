@@ -172,7 +172,7 @@ func Logout(store sessions.Store, logger logrus.FieldLogger) HandlerFunc {
 	}
 }
 
-func Subscribe(store sessions.Store, redisClient redis.UniversalClient, logger logrus.FieldLogger) HandlerFunc {
+func Subscribe(store sessions.Store, redisClient redis.UniversalClient, playlistNowCh chan<- spotify.ID, logger logrus.FieldLogger) HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		// Fetch session.
 		session, err := store.Get(r, SessionName)
@@ -225,6 +225,10 @@ func Subscribe(store sessions.Store, redisClient redis.UniversalClient, logger l
 
 		session.Values[IsSubscribed] = true
 		logger.WithField("user_id", userID).Infof("subscribed")
+
+		if r.FormValue("playlist_now") != "" {
+			playlistNowCh <- spotify.ID(userID)
+		}
 
 		err = session.Save(r, w)
 		if err != nil {

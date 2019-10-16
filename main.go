@@ -109,7 +109,8 @@ func main() {
 		os.Exit(1)
 	}
 
-	go spotshot.PlaylistCreator(context.Background(), redisClient, logger, spotshot.SpotifyClientCreator(spotAuth))
+	playlistNowCh := make(chan spotify.ID)
+	go spotshot.PlaylistCreator(context.Background(), redisClient, logger, spotshot.SpotifyClientCreator(spotAuth), playlistNowCh)
 
 	homeTmpl, err := template.ParseFiles("templates/index.html.tmpl")
 	if err != nil {
@@ -142,7 +143,7 @@ func main() {
 		HandlerFunc: spotshot.Callback(spotAuth, store, redisClient, logger),
 		Logger:      logger})
 	r.Path("/subscribe").Methods("POST").Handler(&spotshot.Endpoint{
-		HandlerFunc: spotshot.Subscribe(store, redisClient, logger),
+		HandlerFunc: spotshot.Subscribe(store, redisClient, playlistNowCh, logger),
 		Logger:      logger})
 	r.Path("/unsubscribe").Methods("POST").Handler(&spotshot.Endpoint{
 		HandlerFunc: spotshot.Unsubscribe(store, redisClient, logger),

@@ -106,7 +106,9 @@ func TestPlaylistCreatorSubscribedUser(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
 	defer cancel()
 	mother := new(motherOfSpotClients)
-	PlaylistCreator(ctx, redisClient, logger, mother.mockSpotifyClientCreator(spotify.Authenticator{}))
+	playlistNowCh := make(chan spotify.ID)
+	PlaylistCreator(ctx, redisClient, logger, mother.mockSpotifyClientCreator(spotify.Authenticator{}), playlistNowCh)
+	close(playlistNowCh)
 
 	if mother.msc == nil {
 		t.Fatalf("expected spotify client to be created")
@@ -123,7 +125,7 @@ func TestPlaylistCreatorSubscribedUser(t *testing.T) {
 	if len(mother.msc.playlists[0].tracks) != numSongs {
 		t.Errorf("expected %d songs, got %d", numSongs, len(mother.msc.playlists[0].tracks))
 	}
-	match, err := regexp.MatchString(`(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{2}`, mother.msc.playlists[0].name)
+	match, err := regexp.MatchString(`Your Top Songs (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{2}`, mother.msc.playlists[0].name)
 	if err != nil {
 		t.Fatalf("couldn't compile regex: %s", err)
 	}
