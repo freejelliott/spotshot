@@ -17,6 +17,7 @@ const (
 	NumSongsField     = "num_songs"
 	RefreshTokenField = "refresh_token"
 	IsPrivateField    = "is_private"
+	DomainName        = "spotshot.jelliott.dev"
 )
 
 var (
@@ -115,7 +116,7 @@ func PlaylistCreator(ctx context.Context, redisClient redis.UniversalClient, log
 			monthShort := now.Month().String()[:3]
 			yearShort := now.Year() % 100
 			playlistName := fmt.Sprintf("%s %0.2d", monthShort, yearShort)
-			playlistDesc := fmt.Sprintf("Your top songs for %s %d.", now.Month(), timeNow().Year())
+			playlistDesc := fmt.Sprintf("Your top songs in %s %d, made by %s", now.Month(), timeNow().Year(), DomainName)
 			// Make the playlist! It will be empty at first.
 			// TODO: support custom naming playlists
 			fullPlaylist, err := spotClient.CreatePlaylistForUser(userID, playlistName, playlistDesc, !isPrivate)
